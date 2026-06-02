@@ -21,3 +21,5 @@ yarn-debug.log*
 .DS_Store
 *.pem
 .vercel
+
+.vercel
