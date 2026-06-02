@@ -372,8 +372,7 @@ function SetupGuide({ error }: { error: string }) {
 }
 
 // ─── Header ──────────────────────────────────────────────────────────────────
-function AppHeader({ user, onRefresh, refreshing, sheetTitle, allExpanded, onToggleAll }: {
-  user: { name?: string | null; email?: string | null; image?: string | null } | null
+function AppHeader({ onRefresh, refreshing, sheetTitle, allExpanded, onToggleAll }: {
   onRefresh: () => void
   refreshing: boolean
   sheetTitle: string
@@ -418,16 +417,6 @@ function AppHeader({ user, onRefresh, refreshing, sheetTitle, allExpanded, onTog
             새로고침
           </button>
 
-          {/* 유저 */}
-          {user && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-              {user.image
-                ? <img src={user.image} alt="" width={28} height={28} style={{ borderRadius: '50%', border: '1px solid var(--border)' }} />
-                : <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--surface-2)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--text-dim)' }}>{(user.name ?? user.email ?? '?')[0].toUpperCase()}</div>
-              }
-              <a href="/api/auth/signout" className="btn" style={{ padding: '4px 10px', fontSize: 11 }}>로그아웃</a>
-            </div>
-          )}
         </div>
       </div>
       <style>{`
@@ -439,9 +428,8 @@ function AppHeader({ user, onRefresh, refreshing, sheetTitle, allExpanded, onTog
 }
 
 // ─── Main dashboard ───────────────────────────────────────────────────────────
-export default function Dashboard({ data: init, user }: {
+export default function Dashboard({ data: init }: {
   data: DashboardData
-  user: { name?: string | null; email?: string | null; image?: string | null } | null
 }) {
   const [data, setData] = useState(init)
   const [refreshing, setRefreshing] = useState(false)
@@ -467,7 +455,7 @@ export default function Dashboard({ data: init, user }: {
 
   if (data.error) return (
     <div style={{ minHeight: '100dvh' }}>
-      <AppHeader user={user} onRefresh={refresh} refreshing={refreshing} sheetTitle="" allExpanded={false} onToggleAll={() => {}} />
+      <AppHeader onRefresh={refresh} refreshing={refreshing} sheetTitle="" allExpanded={false} onToggleAll={() => {}} />
       <SetupGuide error={data.error} />
     </div>
   )
@@ -488,7 +476,7 @@ export default function Dashboard({ data: init, user }: {
 
   return (
     <div style={{ minHeight: '100dvh', paddingBottom: 60 }}>
-      <AppHeader user={user} onRefresh={refresh} refreshing={refreshing} sheetTitle={sheetTitle} allExpanded={allExpanded} onToggleAll={toggleAll} />
+      <AppHeader onRefresh={refresh} refreshing={refreshing} sheetTitle={sheetTitle} allExpanded={allExpanded} onToggleAll={toggleAll} />
 
       <main className="container" style={{ paddingTop: 32, display: 'flex', flexDirection: 'column', gap: 20 }}>
 
