@@ -7,10 +7,10 @@ import type {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const card: CSSProperties = {
-  background: 'linear-gradient(180deg, var(--surface) 0%, var(--bg-2) 100%)',
+  background: 'var(--surface)',
   border: '1px solid var(--border)',
   borderRadius: 'var(--radius-lg)',
-  boxShadow: 'inset 0 1px 0 color-mix(in oklch, white 4%, transparent), 0 4px 24px color-mix(in oklch, black 20%, transparent)',
+  boxShadow: '0 2px 12px rgba(124,92,252,0.06), 0 1px 3px rgba(0,0,0,0.04)',
 }
 
 function timeAgo(iso: string) {
@@ -26,7 +26,7 @@ function maskEmail(e: string) {
 }
 
 function GlowDot({ color = 'var(--accent)' }: { color?: string }) {
-  return <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: color, boxShadow: `0 0 6px ${color}`, flexShrink: 0 }} />
+  return <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: color, flexShrink: 0, boxShadow: `0 0 0 2px white, 0 0 0 3.5px ${color}33` }} />
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -43,10 +43,12 @@ const STATUS_COLORS: Record<string, string> = {
   '회신완료': 'badge-green', '처리완료': 'badge-green', '완료': 'badge-green',
   '신규(대기)': 'badge-blue', '신규': 'badge-blue', '대기': 'badge-blue',
   '조치필요': 'badge-red', '지연': 'badge-red', '검토필요': 'badge-amber',
-  '자동분류': 'badge-muted', '자동': 'badge-muted',
+  '자동분류': 'badge-muted', '자동': 'badge-muted', '자동분류(처리불요)': 'badge-muted',
   '긍정': 'badge-green', '중립': 'badge-amber', '부정': 'badge-red',
-  '외부고객': 'badge-blue', '내부': 'badge-green', '자동/마케팅': 'badge-muted',
+  '외부고객': 'badge-purple', '내부': 'badge-green', '자동/마케팅': 'badge-muted',
   '생성됨': 'badge-green', '대기중': 'badge-amber', '수동조치': 'badge-red',
+  '미회신': 'badge-amber', '회신완료(미회신)': 'badge-muted',
+  'KO': 'badge-blue', 'EN': 'badge-purple', 'ZH': 'badge-pink',
 }
 function statusBadgeClass(v: string) {
   return STATUS_COLORS[v] ?? (v.length < 10 ? 'badge-muted' : '')
@@ -72,15 +74,18 @@ function KPICard({ label, value, sub, accent = 'var(--accent)', icon }: {
   }, [num, isNum])
 
   return (
-    <div style={{ ...card, padding: '24px', display: 'flex', flexDirection: 'column', gap: 12, position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', top: 0, right: 0, width: 120, height: 120, background: `radial-gradient(circle, color-mix(in oklch, ${accent} 8%, transparent), transparent 70%)`, pointerEvents: 'none' }} />
-      <span style={{ fontSize: 22, background: `color-mix(in oklch, ${accent} 15%, var(--surface-2))`, borderRadius: 10, width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</span>
+    <div style={{ ...card, padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: 14, position: 'relative', overflow: 'hidden', transition: 'transform 0.2s, box-shadow 0.2s' }}
+      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = `0 8px 24px ${accent}22, 0 2px 8px rgba(0,0,0,0.06)` }}
+      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = ''; (e.currentTarget as HTMLDivElement).style.boxShadow = '' }}
+    >
+      <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, background: `radial-gradient(circle, ${accent}18, transparent 70%)`, pointerEvents: 'none', borderRadius: '50%' }} />
+      <span style={{ fontSize: 20, background: `${accent}18`, borderRadius: 10, width: 42, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1.5px solid ${accent}30` }}>{icon}</span>
       <div>
-        <div style={{ fontSize: 36, fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--text)', lineHeight: 1, fontFamily: 'var(--font-geist-mono), monospace' }}>
+        <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: '-0.03em', color: accent, lineHeight: 1, fontFamily: 'var(--font-geist-mono), monospace' }}>
           {isNum ? n.toLocaleString() : value}
         </div>
-        <div style={{ fontSize: 13, color: 'var(--text-dim)', marginTop: 6 }}>{label}</div>
-        {sub && <div style={{ fontSize: 11, color: 'var(--text-mute)', marginTop: 3 }}>{sub}</div>}
+        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginTop: 6 }}>{label}</div>
+        {sub && <div style={{ fontSize: 11, color: 'var(--text-mute)', marginTop: 2 }}>{sub}</div>}
       </div>
     </div>
   )
@@ -99,20 +104,20 @@ function CollapsibleSection({ title, badge, defaultOpen = false, forceOpen, chil
 
   return (
     <div style={{ ...card, overflow: 'hidden' }}>
-      <button onClick={() => setOpen(v => !v)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text)' }}>
+      <button onClick={() => setOpen(v => !v)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 22px', background: open ? 'var(--surface-2)' : 'var(--surface)', border: 'none', cursor: 'pointer', color: 'var(--text)', borderRadius: open ? '18px 18px 0 0' : 'var(--radius-lg)', transition: 'background 0.2s' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 14, fontWeight: 500 }}>{title}</span>
-          {badge && <span className="badge badge-muted" style={{ fontSize: 10 }}>{badge}</span>}
+          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>{title}</span>
+          {badge && <span className="badge badge-purple" style={{ fontSize: 10 }}>{badge}</span>}
         </div>
-        <span style={{ color: 'var(--text-mute)', fontSize: 18, lineHeight: 1, transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.25s', display: 'inline-block' }}>›</span>
+        <span style={{ color: 'var(--accent)', fontSize: 16, lineHeight: 1, transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.25s', display: 'inline-block', fontWeight: 700 }}>›</span>
       </button>
-      {open && <div style={{ padding: '0 24px 24px' }}>{children}</div>}
+      {open && <div style={{ padding: '4px 22px 22px', borderTop: '1px solid var(--border)' }}>{children}</div>}
     </div>
   )
 }
 
 // ─── Bar chart (horizontal) ───────────────────────────────────────────────────
-const BAR_COLORS = ['var(--accent)', 'var(--accent-3)', 'var(--accent-4)', 'var(--accent-2)', 'oklch(75% 0.12 300)', 'oklch(78% 0.13 200)']
+const BAR_COLORS = ['#7c5cfc', '#38b2f4', '#ffb347', '#ff6b9d', '#4ecb8d', '#a78bfa']
 
 function BarChart({ data, total }: { data: CategoryStat[]; total: number }) {
   if (!data.length) return <div style={{ color: 'var(--text-mute)', fontSize: 12 }}>데이터 없음</div>
@@ -235,7 +240,7 @@ function ReviewCards({ rows, headers, analysis }: {
         const isDelayed = delayCol ? ((row[delayCol.index] ?? '').trim() === '지연') : false
 
         return (
-          <div key={i} style={{ background: 'var(--surface)', border: `1px solid ${isDelayed ? 'color-mix(in oklch, oklch(65% 0.22 25) 25%, var(--border))' : 'var(--border)'}`, borderRadius: 'var(--radius)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div key={i} style={{ background: 'var(--surface)', border: `1.5px solid ${isDelayed ? '#ffc5d3' : 'var(--border)'}`, borderRadius: 'var(--radius)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={sender}>
@@ -341,7 +346,7 @@ function SetupGuide({ error }: { error: string }) {
             <p style={{ fontSize: 13, color: 'var(--text-mute)', marginTop: 2 }}>환경변수를 설정하면 대시보드가 활성화됩니다</p>
           </div>
         </div>
-        <div style={{ background: 'var(--bg-2)', border: '1px solid color-mix(in oklch, var(--accent-2) 30%, var(--border))', borderRadius: 'var(--radius)', padding: '14px 16px', marginBottom: 24 }}>
+        <div style={{ background: 'var(--bg-2)', border: '1.5px solid #ffc5d3', borderRadius: 'var(--radius)', padding: '14px 16px', marginBottom: 24 }}>
           <div style={{ fontSize: 11, color: 'var(--accent-2)', marginBottom: 4 }}>오류 메시지</div>
           <div style={{ fontSize: 12, color: 'var(--text-dim)', fontFamily: 'var(--font-geist-mono), monospace', wordBreak: 'break-all' }}>{error}</div>
         </div>
@@ -376,7 +381,7 @@ function AppHeader({ user, onRefresh, refreshing, sheetTitle, allExpanded, onTog
   onToggleAll: () => void
 }) {
   return (
-    <header style={{ position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid var(--border)', background: 'color-mix(in oklch, var(--bg) 85%, transparent)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+    <header style={{ position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid var(--border)', background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56, gap: 16 }}>
         {/* 로고 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
@@ -488,7 +493,7 @@ export default function Dashboard({ data: init, user }: {
       <main className="container" style={{ paddingTop: 32, display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         {/* Hero */}
-        <div style={{ ...card, padding: '28px 32px', background: 'linear-gradient(135deg, color-mix(in oklch, var(--accent) 8%, var(--surface)) 0%, var(--surface) 50%, color-mix(in oklch, var(--accent-3) 6%, var(--surface)) 100%)' }}>
+        <div style={{ ...card, padding: '28px 32px', background: 'linear-gradient(135deg, #f3efff 0%, #ffffff 50%, #eaf6ff 100%)' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
