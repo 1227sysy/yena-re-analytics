@@ -25,6 +25,7 @@ const config: NextAuthConfig = {
     },
   },
   pages: {
+    signIn: '/auth/signin',
     error: '/auth/error',
   },
 }
